@@ -27,39 +27,26 @@ sys.stdout.write( "Dimensionality = %d\n" % d )
 # Create the clean up memory, and generate two symbols
 sys.stderr.write( "\n > Generating the clean up memory and vectors..." )
 mem = CleanUpMemory( d )
-a = mem.add_symbol( 'a' )	# Create a symbol "a"
-b = mem.add_symbol( 'b' )	# Create a symbol "b"
+[a,b] = map( mem.get_symbol, ['a', 'b' ] )	# Create symbols 'a' and 'b'
 
-# Now generate the inverses of these symbols
-sys.stderr.write( "\n > Inverting the initial vectors..." )
-a_ = vec_invert( a )	# a' is the rough inverse of a
-b_ = vec_invert( b )	# b' is the rough inverse of b
-
-# Convolve a and b to generate c
-sys.stderr.write( "\n > Convolving..." )
+# Bind a to b to get c
+sys.stderr.write( "\n > Binding and unbinding..." )
 sys.stderr.write( "\n   > c := a (*) b" )
-c = vec_convolve_circular( a, b )	# c := a (*) b
+c = a.bind( b )
 
-# Convolve c with a' to get ca (~= b)
-sys.stderr.write( "\n   > a' (*) c" )
-ca = vec_convolve_circular( a_, c )
+# Unbind a and b from c respectively
+sys.stderr.write( "\n   > a (*) b (*) a' ~= b" )
+ca_ = c.unbind( a )
 
-# Convolve c with b' to get cb (~= a)
-sys.stderr.write( "\n   > b' (*) c" )
-cb = vec_convolve_circular( b_, c )
+sys.stderr.write( "\n   > a (*) b (*) b' ~= a" )
+cb_ = c.unbind( b )
 
-sys.stderr.write( "\n   > b' (*) c" )
+# Illustrate the similarities with items stored in the memory
+sys.stderr.write( "\n > Illustrating similarities...\n" )
+for s in [a,b,c,ca_,cb_]:
+	sys.stdout.write( "\n%s is similar to:" % s )
 
-# Use the clean up memory to illustrate similarities
-for (l, s) in [ ( 'a', a ),
-		( 'b', b ),
-		( "a'", a_ ),
-		( "b'", b_ ),
-		( "a(*)b", c ),
-		( "(a(*)b) (*) a' ~= b", ca ),
-		( "(a(*)b) (*) b' ~= a", cb ),
-	]:
-	sys.stdout.write( "\n%s is similar to: \n" % l )
-	print( mem.cleanup( s ) )
-
-sys.stdout.write( "\n" )
+	for (s_, c_) in mem.clean_up( s ):
+		sys.stdout.write( "\n\t%s -> %.3f" % (s_, c_) )
+	
+	sys.stdout.write( "\n" )

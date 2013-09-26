@@ -1,65 +1,142 @@
-from random import normalvariate
-import math
+"""
+Holographic Reduced Representations
+===================================
+Andrew Mundy
 
-def vec_conform( f ):
-	"""Decorator to ensure that vectors passed as arguments are of the same dimensionality."""
-	def f_( a, b ):
-		if len( a ) != len( b ):
-			raise Exception( "Vectors are not of the same dimensionality." )
+Uses NUMPY to construct symbol representations with Holographic Reduced
+Representations.  HRR vectors may be convolved and cleaned up using any given
+clean-up memory.
+"""
 
-		return f(a, b)
-	return f_
-		
-@vec_conform
+from numpy import *
+
 def vec_convolve_circular( a, b ):
-	"""Performs circular convolution on two vectors of the same length."""
-	# Could do this with DFT/FFT if preferred	
-	# c = a (*) b
-	n = len( a )
-	return [ sum( [ a[k] * b[ (j-k) % n ] for k in range( n ) ] ) for j in range( n ) ]
+	"""Convolve two vectors and return the result."""
+	# Transform into the Fourier/frequency domain and perform
+	# element-wise multiplication.
+	fft_a = fft.fft( a )
+	fft_b = fft.fft( b )
+	fft_c = fft_a * fft_b
 
-def vec_invert( a ):
-	"""Perform a rough inversion of the given vector."""
-	return [a[0]] + [ a[i] for i in range( len(a) - 1, 0, -1 ) ]
+	# Now convert back from the Fourier domain
+	return real( fft.ifft( fft_c ) )
 
-def vec_create( n ):
-	"""Create a vector of the given dimensionality (n) such that the elements
-	are selected to lie on a normal distribution of mean 0 and variance 1/n."""
-	mu = 0
-	sigma = math.sqrt( 1.0/n )	# (Plate 1991)
-	return [ normalvariate( mu, sigma ) for i in range( n ) ]
 
-def vec_magnitude( a ):
-	return math.sqrt( sum( [ x**2 for x in a ] ) )
+class Symbol( object ):
+	"""A symbol object represents a symbol within an HRR system.  For ease
+	of use a label is stored with the symbol, and the entire construct is
+	immutable once generated."""
 
-@vec_conform
-def vec_dot_product( a, b ):
-	"""Returns dot product of two vectors of the same dimensionality."""
-	n = len( a )
-	return sum( [ a[i]*b[i] for i in range( n ) ] )
+	def __init__( self, label, **kwargs ):
+		"""Generate a new symbol with the given label and
+		dimensionality.  The label is used only to make sense
+		of what's going on.
+		If the vector for the symbol is specified this is used,
+		otherwise a correctly distributed vector is generated."""
+		# Store the constants
+		self._label = label
 
-@vec_conform
-def vec_angle( a, b ):
-	"""Return the angle between the two vectors."""
-	return math.acos( vec_dot_product( a, b ) / ( vec_magnitude(a) + vec_magnitude(b) ) )
+		# Check that either a dimensionality or a vector is passed
+		# as a parameter.
+		if not "vector" in kwargs and not "dimensionality" in kwargs:
+			raise ValueError( "You must either specify a vector"\
+					  "or a dimensionality." )
+
+		# Generate and store the vector representing this symbol
+		if not "vector" in kwargs:
+			self._d = kwargs["dimensionality"]
+			self._v = random.normal(
+						 0,
+						 sqrt( 1./self._d ),
+						 size=(self._d)
+			)
+		else:
+			self._v = array( kwargs["vector"] )
+			self._d = self._v.size
+	
+	# Getter methods
+	def __str__( self ):
+		return self._label
+	
+	def dimensionality( self ):
+		return self._d
+	
+	def vector( self ):
+		return self._v
+
+	def inverse_vector( self ):
+		"""Return a rough inverse of the vector for the symbol."""
+		return hstack( [ self._v[0], self._v[-1:0:-1] ] )
+	
+	# Bind and unbind operations
+	def bind( self, b ):
+		"""Bind the current symbol to the given symbol and return
+		a new vector with this binding."""
+		# Convolve to form the combined vector
+		c = vec_convolve_circular( self.vector(), b.vector() )
+
+		# Generate a new label
+		l = "(%s (*) %s)" % ( self, b )
+
+		# Return a new symbol
+		return Symbol( l, vector = c )
+	
+	def unbind( self, b ):
+		"""Unbinds the given vector (b) from the current vector."""
+		# Convolve to form the combined vector
+		c = vec_convolve_circular( self.vector(), b.inverse_vector() )
+
+		# Generate a new label
+		l = "(%s (*) %s')" % ( self, b )
+
+		# Return a new symbol
+		return Symbol( l, vector = c )
+	
+	# Combine operations
+	def add( self, b ):
+		"""Add the given vector to the current vector."""
+		pass
+	
+	# Equivalence / comparison operations
+	def dot_product( self, b ):
+		"""Returns the dot product of the given symbols."""
+		return sum( self.vector() * b.vector() )
+	
+	def comparison( self, b ):
+		"""Returns the cosine of the angle between the given symbols."""
+		return self.dot_product( b ) / ( self.magnitude() * b.magnitude() )
+	
+	# Other useful bits
+	def magnitude( self ):
+		"""Returns the magnitude of the vector representing the
+		symbol."""
+		return sqrt( sum( self.vector() ** 2 ) )
 
 class CleanUpMemory( object ):
-	"""Creates a clean up memory ... <MORE HERE> ..."""
+	"""A CleanUpMemory provides a source of Symbols and is capable of
+	cleaning up bound and unbound symbols."""
+
 	def __init__( self, dimensionality ):
-		self._memory = {}
+		"""Create a new CleanUpMemory with the given dimensionality.
+		All symbols derived from this memory will have this
+		dimensionality."""
+		self._symbols = []
 		self._dimensionality = dimensionality
 	
-	def add_symbol( self, label ):
-		"""Generate a new vector and add it to the memory with the given
-		label."""
-		self._memory[label] = vec_create( self._dimensionality )
-		return self._memory[label]
+	def get_symbol( self, label ):
+		"""Instantiate a new symbol with the given label, the symbol
+		will be added to the CleanUpMemory."""
+		# Generate the new symbol, store it and then return the symbol
+		# to the caller.
+		s = Symbol( label, dimensionality = self._dimensionality )
+		self._symbols.append( s )
+		return s
 	
-	def cleanup( self, a ):
-		"""Clean up the given vector."""
-		matches = sorted(
-				[ (vec_dot_product( a, b ) / ( vec_magnitude(a) * vec_magnitude(b) ), l) for (l,b) in self._memory.items() ],
-				key = lambda (x,y) : x
-			  )
-		matches.reverse()
-		return matches
+	def clean_up( self, s ):
+		"""Return an ordered list of stored symbols along with their
+		similarity to the provided symbol."""
+		return sorted(
+				[ (s_, s.comparison( s_ )) for s_ in self._symbols],
+				key = lambda (s_, c) : c,
+				reverse = True
+		)
