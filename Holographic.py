@@ -129,19 +129,40 @@ class CleanUpMemory( object ):
 	"""A CleanUpMemory provides a source of Symbols and is capable of
 	cleaning up bound and unbound symbols."""
 
-	def __init__( self, dimensionality ):
+	def __init__( self, dimensionality, **kwargs ):
 		"""Create a new CleanUpMemory with the given dimensionality.
 		All symbols derived from this memory will have this
-		dimensionality."""
+		dimensionality.
+		A custom generator may be specified using the rules given in
+		the specification for the Symbol class."""
 		self._symbols = []
 		self._dimensionality = dimensionality
+		self._generator = None
+
+		if "generator" in kwargs:
+			self._generator = kwargs["generator"]
+	
+	def add_symbol( self, symbol ):
+		"""Add a given symbol to the memory."""
+		if not symbol.vector().size == self._dimensionality:
+			raise ValueError( "Symbol must have the same dimensionality as the memory." )
+
+		# Add the symbol to the memory
+		self._symbols.append( symbol )
 	
 	def get_symbol( self, label ):
 		"""Instantiate a new symbol with the given label, the symbol
 		will be added to the CleanUpMemory."""
 		# Generate the new symbol, store it and then return the symbol
 		# to the caller.
-		s = Symbol( label, dimensionality = self._dimensionality )
+		if self._generator is None:
+			s = Symbol( label, dimensionality = self._dimensionality )
+		else:
+			s = Symbol( 
+					label,
+					dimensionality = self._dimensionality,
+					generator = self._generator
+			)
 		self._symbols.append( s )
 		return s
 	
