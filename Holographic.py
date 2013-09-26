@@ -12,6 +12,10 @@ from numpy import *
 
 def vec_convolve_circular( a, b ):
 	"""Convolve two vectors and return the result."""
+	# Check that the vectors conform
+	if not a.size == b.size:
+		raise ValueError( "Vectors must be of the same dimensionality." )
+
 	# Transform into the Fourier/frequency domain and perform
 	# element-wise multiplication.
 	fft_a = fft.fft( a )
@@ -20,7 +24,6 @@ def vec_convolve_circular( a, b ):
 
 	# Now convert back from the Fourier domain
 	return real( fft.ifft( fft_c ) )
-
 
 class Symbol( object ):
 	"""A symbol object represents a symbol within an HRR system.  For ease
