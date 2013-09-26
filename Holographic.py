@@ -42,7 +42,7 @@ class Symbol( object ):
 		array of the correct size.
 
 		The default generator would be passed as:
-		generator = lambda d : random.normal( 0, sqrt(1./d), size=d )
+		generator = lambda d : random.normal( 0, sqrt(1./d), size=(d) )
 		"""
 		# Store the constants
 		self._label = label
@@ -55,7 +55,7 @@ class Symbol( object ):
 
 		# See if a generator has been passed, otherwise use the default
 		if not "generator" in kwargs:
-			gen = lambda d : random.normal( 0, sqrt(1./d), d )
+			gen = lambda d : random.normal( 0, sqrt(1./d), size=(d) )
 		else:
 			gen = kwargs["generator"]
 
@@ -63,6 +63,9 @@ class Symbol( object ):
 		if not "vector" in kwargs:
 			self._d = kwargs["dimensionality"]
 			self._v = gen( self._d )
+
+			if not self._v.size == self._d:
+				raise ValueError( "Generated vector is not of the correct dimensionality." )
 		else:
 			self._v = array( kwargs["vector"] )
 			self._d = self._v.size
