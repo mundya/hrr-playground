@@ -32,10 +32,18 @@ class Symbol( object ):
 
 	def __init__( self, label, **kwargs ):
 		"""Generate a new symbol with the given label and
-		dimensionality.  The label is used only to make sense
-		of what's going on.
-		If the vector for the symbol is specified this is used,
-		otherwise a correctly distributed vector is generated."""
+		dimensionality.  The label is used only to make sense of what's
+		going on. If the vector for the symbol is specified this is
+		used, otherwise a correctly distributed vector is generated.
+
+		A generator may be specified to allow for custom vector
+		generation.  The generator must accept one parameter which is
+		the dimensionality of the desired vector and must return a numpy
+		array of the correct size.
+
+		The default generator would be passed as:
+		generator = lambda d : random.normal( 0, sqrt(1./d), size=d )
+		"""
 		# Store the constants
 		self._label = label
 
@@ -45,14 +53,16 @@ class Symbol( object ):
 			raise ValueError( "You must either specify a vector"\
 					  "or a dimensionality." )
 
+		# See if a generator has been passed, otherwise use the default
+		if not "generator" in kwargs:
+			gen = lambda d : random.normal( 0, sqrt(1./d), d )
+		else:
+			gen = kwargs["generator"]
+
 		# Generate and store the vector representing this symbol
 		if not "vector" in kwargs:
 			self._d = kwargs["dimensionality"]
-			self._v = random.normal(
-						 0,
-						 sqrt( 1./self._d ),
-						 size=(self._d)
-			)
+			self._v = gen( self._d )
 		else:
 			self._v = array( kwargs["vector"] )
 			self._d = self._v.size
