@@ -134,7 +134,9 @@ class CleanUpMemory( object ):
 		All symbols derived from this memory will have this
 		dimensionality.
 		A custom generator may be specified using the rules given in
-		the specification for the Symbol class."""
+		the specification for the Symbol class, this is passed as a
+		keyword argument, "generator = ..."
+		"""
 		self._symbols = []
 		self._dimensionality = dimensionality
 		self._generator = None
