@@ -26,7 +26,7 @@ sys.stdout.write( "Dimensionality = %d\n" % d )
 
 # Create the clean up memory, and generate two symbols
 sys.stderr.write( "\n > Generating the clean up memory and vectors..." )
-mem = CleanUpMemory( d )
+mem = CleanUpMemory( d, generator=vec_generate_normalised )
 [a,b] = map( mem.get_symbol, ['a', 'b' ] )	# Create symbols 'a' and 'b'
 
 # Bind a to b to get c

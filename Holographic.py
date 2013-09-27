@@ -25,6 +25,23 @@ def vec_convolve_circular( a, b ):
 	# Now convert back from the Fourier domain
 	return real( fft.ifft( fft_c ) )
 
+def vec_generate( d ):
+	"""Generates a vector of dimensionality d, with elements selected from
+	a normal distribution with mean 0 and variance 1/d."""
+	return random.normal( 0, sqrt(1./d), size=(d) )
+
+def vec_generate_normalised( d ):
+	"""Generates a normalised vector of dimensionality d, whose elements
+	are initially selected from a normal distribution of mean 0 and
+	variance 1/d."""
+	return vec_normalise( vec_generate( d ) )
+
+def vec_normalise( v ):
+	"""Returns a normalised copy of the vector."""
+	v = array( v )
+	m = sqrt( sum( v ** 2 ) )
+	return v / m
+
 class Symbol( object ):
 	"""A symbol object represents a symbol within an HRR system.  For ease
 	of use a label is stored with the symbol, and the entire construct is
@@ -55,7 +72,7 @@ class Symbol( object ):
 
 		# See if a generator has been passed, otherwise use the default
 		if not "generator" in kwargs:
-			gen = lambda d : random.normal( 0, sqrt(1./d), size=(d) )
+			gen = vec_generate
 		else:
 			gen = kwargs["generator"]
 
