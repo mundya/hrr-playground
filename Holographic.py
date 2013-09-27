@@ -126,9 +126,20 @@ class Symbol( object ):
 		return Symbol( l, vector = c )
 	
 	# Combine operations
-	def add( self, b ):
+	def __add__( self, b ):
 		"""Add the given vector to the current vector."""
-		pass
+		# Check they conform
+		if not self.vector().size == b.vector().size:
+			raise ValueError( "Vectors must be of the same dimensionality." )
+
+		# Generate a new label
+		l = "( %s + %s )" % (self, b )
+
+		# Generate the new vector
+		c = self.vector() + b.vector()
+
+		# Return a new symbol
+		return Symbol( l, vector = c )
 	
 	# Equivalence / comparison operations
 	def dot_product( self, b ):
@@ -185,7 +196,7 @@ class CleanUpMemory( object ):
 					dimensionality = self._dimensionality,
 					generator = self._generator
 			)
-		self._symbols.append( s )
+		self.add_symbol( s )
 		return s
 	
 	def clean_up( self, s ):
