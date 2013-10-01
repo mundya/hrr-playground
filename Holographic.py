@@ -9,6 +9,7 @@ clean-up memory.
 """
 
 from numpy import *
+import operator
 
 def vec_convolve_circular( a, b ):
 	"""Convolve two vectors and return the result."""
@@ -126,35 +127,33 @@ class Symbol( object ):
 		return Symbol( l, vector = c )
 	
 	# Combine operations
-	def __add__( self, b ):
-		"""Add the given vector to the current vector."""
+	def _add( self, b, op = operator.add ):
+		"""Generic add or subtract for vectors."""
 		# Check they conform
 		if not self.vector().size == b.vector().size:
-			raise ValueError( "Vectors must be of the same dimensionality." )
+			raise ValueError( "Vectors must be of the same"\
+					  "dimensionality." )
 
-		# Generate a new label
-		l = "( %s + %s )" % (self, b )
+		# Get the operator character
+		op_cs = { operator.add: '+', operator.sub: '-' }
+		op_c = op_cs[ op ]
+
+		# Generate the new label
+		l = "( %s %c %s )" % ( self, op_c, b )
 
 		# Generate the new vector
-		c = self.vector() + b.vector()
+		c = op( self.vector(), b.vector() )
 
-		# Return a new symbol
+		# Return the new symbol
 		return Symbol( l, vector = c )
+
+	def __add__( self, b ):
+		"""Add the given vector to the current vector."""
+		return self._add( b )
 	
 	def __sub__( self, b ):
 		"""Subtract the given vector from the current vector."""
-		# Check they conform
-		if not self.vector().size == b.vector().size:
-			raise ValueError( "Vectors must be of the same dimensionality." )
-
-		# Generate a new label
-		l = "( %s - %s )" % (self, b )
-
-		# Generate the new vector
-		c = self.vector() - b.vector()
-
-		# Return a new symbol
-		return Symbol( l, vector = c )
+		return self._add( b, op = operator.sub )
 	
 	# Equivalence / comparison operations
 	def dot_product( self, b ):
