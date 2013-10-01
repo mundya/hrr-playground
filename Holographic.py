@@ -141,6 +141,21 @@ class Symbol( object ):
 		# Return a new symbol
 		return Symbol( l, vector = c )
 	
+	def __sub__( self, b ):
+		"""Subtract the given vector from the current vector."""
+		# Check they conform
+		if not self.vector().size == b.vector().size:
+			raise ValueError( "Vectors must be of the same dimensionality." )
+
+		# Generate a new label
+		l = "( %s - %s )" % (self, b )
+
+		# Generate the new vector
+		c = self.vector() - b.vector()
+
+		# Return a new symbol
+		return Symbol( l, vector = c )
+	
 	# Equivalence / comparison operations
 	def dot_product( self, b ):
 		"""Returns the dot product of the given symbols."""
