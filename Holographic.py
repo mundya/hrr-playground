@@ -215,7 +215,6 @@ class CleanUpMemory( object ):
 		# Generate a null vector
 		self._null = Symbol( "null%d" % dimensionality,
 				     vector = zeros( dimensionality ) )
-		self._symbols.append( self._null )
 
 		if "generator" in kwargs:
 			self._generator = kwargs["generator"]
