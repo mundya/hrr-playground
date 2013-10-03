@@ -212,6 +212,11 @@ class CleanUpMemory( object ):
 		self._dimensionality = dimensionality
 		self._generator = None
 
+		# Generate a null vector
+		self._null = Symbol( "null%d" % dimensionality,
+				     vector = zeros( dimensionality ) )
+		self.symbols.append( self._null )
+
 		if "generator" in kwargs:
 			self._generator = kwargs["generator"]
 	
@@ -238,6 +243,10 @@ class CleanUpMemory( object ):
 			)
 		self.add_symbol( s )
 		return s
+	
+	def null( self ):
+		"""Returns the null symbol for the memory."""
+		return self._null
 	
 	def clean_up( self, s ):
 		"""Return an ordered list of stored symbols along with their
