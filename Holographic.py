@@ -243,6 +243,9 @@ class CleanUpMemory( object ):
 		self.add_symbol( s )
 		return s
 	
+	def dimensionality( self ):
+		return self._dimensionality
+	
 	def null( self ):
 		"""Returns the null symbol for the memory."""
 		return self._null
