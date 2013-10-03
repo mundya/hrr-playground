@@ -97,6 +97,13 @@ class Symbol( object ):
 	def dimensionality( self ):
 		return self._d
 	
+	def inverse( self ):
+		"""Return a rough inverse of the symbol."""
+		l = "%s'" % self
+		v = self.inverse_vector()
+
+		return Symbol( l, vector = v )
+	
 	def vector( self ):
 		return self._v
 
