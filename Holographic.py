@@ -10,6 +10,7 @@ clean-up memory.
 
 from numpy import *
 import operator
+from numbers import Number
 
 def vec_convolve_circular( a, b ):
 	"""Convolve two vectors and return the result."""
@@ -68,7 +69,7 @@ class Symbol( object ):
 		# Check that either a dimensionality or a vector is passed
 		# as a parameter.
 		if not "vector" in kwargs and not "dimensionality" in kwargs:
-			raise ValueError( "You must either specify a vector"\
+			raise ValueError( "You must either specify a vector "\
 					  "or a dimensionality." )
 
 		# See if a generator has been passed, otherwise use the default
@@ -83,7 +84,8 @@ class Symbol( object ):
 			self._v = gen( self._d )
 
 			if not self._v.size == self._d:
-				raise ValueError( "Generated vector is not of the correct dimensionality." )
+				raise ValueError( "Generated vector is not of "\
+						  "the correct dimensionality." )
 		else:
 			self._v = array( kwargs["vector"] )
 			self._d = self._v.size
@@ -131,7 +133,7 @@ class Symbol( object ):
 		"""Generic add or subtract for vectors."""
 		# Check they conform
 		if not self.vector().size == b.vector().size:
-			raise ValueError( "Vectors must be of the same"\
+			raise ValueError( "Vectors must be of the same "\
 					  "dimensionality." )
 
 		# Get the operator character
@@ -154,6 +156,25 @@ class Symbol( object ):
 	def __sub__( self, b ):
 		"""Subtract the given vector from the current vector."""
 		return self._add( b, op = operator.sub )
+	
+	# Multiplication
+	def __mul__( self, k ):
+		"""Return a scaled version of the symbol, multiplied by a
+		scalar value."""
+		if not isinstance( k, Number ):
+			raise ValueError( "Symbols may only be scaled by"\
+					  "scalar values." )
+
+		# Generate a new label
+		l = "%.3f%s" % (k, self )
+
+		# Generate the new vector
+		c = k * self.vector()
+
+		# Return the new symbol
+		return Symbol( l, vector = c )
+		
+	__rmul__ = __mul__ # Allows 2*x as well as x*2
 	
 	# Equivalence / comparison operations
 	def dot_product( self, b ):
