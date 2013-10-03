@@ -161,9 +161,14 @@ class Symbol( object ):
 	def __mul__( self, k ):
 		"""Return a scaled version of the symbol, multiplied by a
 		scalar value."""
-		if not isinstance( k, Number ):
+		if not isinstance( k, Number ) and not isinstance( k, Symbol ):
 			raise ValueError( "Symbols may only be scaled by"\
-					  "scalar values." )
+					  "scalar values or bound with other "\
+					  "symbols." )
+
+		if isinstance( k, Symbol ):
+			# Bind instead of scale
+			return self.bind( k )
 
 		# Generate a new label
 		l = "%.3f%s" % (k, self )
