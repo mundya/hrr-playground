@@ -149,3 +149,16 @@ class Symbol( object ):
 	def magnitude( self ):
 		"""Return the magnitude of the vector representing this Symbol."""
 		return vec_magnitude( self.vector() )
+
+class SaturatingSymbol( Symbol ):
+	"""A Symbol which models saturation of the value of components."""
+
+	def __init__( self, parent, label, vector, saturation = lambda x : x ):
+		"""Create a new SaturatingSymbol, the saturation function 
+		(default is the identity function) will be applied to each
+		component of the initial vector when instantiating the vector."""
+		# Saturate the input vector
+		vector = saturation( vector )
+
+		# Now act as normal by calling super init
+		super( SaturatingSymbol, self ).__init__( parent, label, vector )
