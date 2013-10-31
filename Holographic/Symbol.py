@@ -48,7 +48,7 @@ class SymbolFactory( object ):
 		v = self.generate_vector()
 
 		# Create and return the symbol
-		return self.make_symbol( self, label, v )
+		return self.make_symbol( label, v )
 
 class Symbol( object ):
 	"""Provides the interface expected of all Symbols.  Typically
@@ -111,7 +111,7 @@ class Symbol( object ):
 		v_ = self.vector() + other.vector()
 
 		# Create and return a new Symbol
-		self.parent.make_symbol( l_, v_ )
+		return self.parent.make_symbol( l_, v_ )
 	
 	def scale( self, scale ):
 		"""Return the current Symbol scaled by some factor."""
@@ -125,11 +125,11 @@ class Symbol( object ):
 		v_ = scale * self.vector()
 
 		# Create and return a new Symbol
-		self.parent.make_symbol( l_, v_ )
+		return self.parent.make_symbol( l_, v_ )
 	
 	def exponentiate( self, n ):
 		"""Return the current Symbol raised to the power of n."""
-		if not isinstance( scale, numbers.Number ):
+		if not isinstance( n, numbers.Number ):
 			raise ValueError( "You may only scale a exponentiate by a Number." )
 
 		# Create the new label
@@ -139,4 +139,13 @@ class Symbol( object ):
 		v_ = vec_exponentiate( self.vector(), n )
 
 		# Create and return a new Symbol
-		self.parent.make_symbol( l_, v_ )
+		return self.parent.make_symbol( l_, v_ )
+	
+	@parent_match
+	def compare( self, other ):
+		"""Compare this Symbol with another."""
+		return vec_cosine( self.vector(), other.vector() )
+	
+	def magnitude( self ):
+		"""Return the magnitude of the vector representing this Symbol."""
+		return vec_magnitude( self.vector() )

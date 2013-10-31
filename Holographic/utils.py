@@ -13,6 +13,7 @@ def vec_generate( d ):
 def vec_convolve_circular( a, b ):
         """Convolve two vectors and return the result."""
         # Check that the vectors conform
+	assert isinstance( a, ndarray ) and isinstance( b, ndarray )
         if not a.size == b.size:
                 raise ValueError( "Vectors must be of the same dimensionality." )
 
@@ -27,7 +28,7 @@ def vec_convolve_circular( a, b ):
 
 def vec_exponentiate( a, n ):
 	"""Raise vector a to the power of n."""
-	assert isinstance( a, array ) and isinstance( n, numbers.Number )
+	assert isinstance( a, ndarray ) and isinstance( n, numbers.Number )
 
         # Transform into the Fourier/frequency domain and perform
         # element-wise multiplication.
@@ -36,3 +37,19 @@ def vec_exponentiate( a, n ):
 
         # Now convert back from the Fourier domain
         return real( fft.ifft( fft_b ) )
+
+def vec_magnitude( a ):
+	"""Return the magnitude of vector a."""
+	assert isinstance( a, ndarray )
+	return sqrt( sum( a**2 ) )
+
+def vec_dot_product( a, b ):
+	"""The dot product of two vectors."""
+	assert isinstance( a, ndarray ) and isinstance( b, ndarray )
+	return sum( a * b )
+
+def vec_cosine( a, b ):
+	"""Return the cosine of the angle between the vectors."""
+	assert isinstance( a, ndarray ) and isinstance( b, ndarray )
+	dp = vec_dot_product( a, b )
+	return dp / ( vec_magnitude( a ) * vec_magnitude( b ) )
