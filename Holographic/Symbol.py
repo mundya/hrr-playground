@@ -49,6 +49,22 @@ class SymbolFactory( object ):
 
 		# Create and return the symbol
 		return self.make_symbol( label, v )
+	
+	def compositional_identity( self ):
+		"""Return the null symbol for composition."""
+		# Create the vector
+		v = zeros( self.dimensionality() )
+
+		# Create and return the symbol
+		return self.make_symbol( "~0", v )
+	
+	def binding_identity( self ):
+		"""Return the null symbol for binding."""
+		# Create the vector
+		v = hstack( [[1], zeros( self.dimensionality() - 1 )] )
+
+		# Create and return the symbol
+		return self.make_symbol( "~1", v )
 
 class Symbol( object ):
 	"""Provides the interface expected of all Symbols.  Typically
