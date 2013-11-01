@@ -169,10 +169,11 @@ class Symbol( object ):
 class SaturatingSymbol( Symbol ):
 	"""A Symbol which models saturation of the value of components."""
 
-	def __init__( self, parent, label, vector, saturation = lambda x : x ):
+	def __init__( self, parent, label, vector,
+		      saturation = lambda x : 2.4/( 1 + e ** (-1.75*x) ) - 1.2 ):
 		"""Create a new SaturatingSymbol, the saturation function 
-		(default is the identity function) will be applied to each
-		component of the initial vector when instantiating the vector."""
+		will be applied to each	component of the initial vector when
+		instantiating the vector."""
 		# Saturate the input vector
 		vector = saturation( vector )
 
