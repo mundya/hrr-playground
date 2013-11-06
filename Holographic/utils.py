@@ -53,3 +53,16 @@ def vec_cosine( a, b ):
     assert isinstance( a, ndarray ) and isinstance( b, ndarray )
     dp = vec_dot_product( a, b )
     return dp / ( vec_magnitude( a ) * vec_magnitude( b ) )
+
+def saturation_sigmoid( x ):
+    """A sample saturation function.
+
+    f(x) = 2.4 / ( 1 + e**(-1.75*x) ) - 1.2
+    
+    :param x: A value to saturate.
+    :type x: float
+
+    :returns: The effect of saturating the input value.
+    :rtype: float
+    """
+    return 2.4/( 1 + e ** (-1.75*x) ) - 1.2
