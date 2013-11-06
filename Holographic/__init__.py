@@ -4,4 +4,5 @@
 
 import Memory
 import Symbol
-from utils import vec_generate, vec_convolve_circular, vec_exponentiate
+from utils import ( vec_generate, vec_convolve_circular, vec_exponentiate,
+                    vec_magnitude )
