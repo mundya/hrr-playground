@@ -7,10 +7,9 @@ reduced representations.
 Nothing special at the moment, but it may be useful
 later.
 
-`test.py` merely simulates setting up some vectors
-in an _n_-dimensional space, creating a clean up
-memory and performing various convolutions to
-illustrate binding and unbinding of symbols.
+Examples will be added shortly, for the meantime, you can view some
+introductory information by running IPython notebook in this
+directory, or by generating the documentation.
 
 You are referred to (Plate 1991) and (Eliasmith 2013, Chapter 4)
 for further details.
